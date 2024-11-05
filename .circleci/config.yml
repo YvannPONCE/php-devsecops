@@ -192,7 +192,7 @@ jobs:
 
             # Build the Docker image
             docker build \
-            -f Dockerfile \
+            -f ./Dockerfile \
             -t popo \
             --build-arg TAG="${CIRCLE_SHA1}" \
             --build-arg GIT_URL= https://github.com/YvannPONCE/php-devsecops/ \
