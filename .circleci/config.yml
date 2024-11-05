@@ -59,7 +59,7 @@ executors:
     resource_class: small
     shell: /bin/bash
     docker:
-      - image: cimg/deploy:2022.06.1
+      - image: cimg/php:8.3-node
         name: localhost
   simple-executor:
     resource_class: small
