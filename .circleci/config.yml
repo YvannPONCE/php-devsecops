@@ -191,10 +191,10 @@ jobs:
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
             # Build the Docker image
-            docker build -t ghcr.io/YvannPONCE/php-devsecops:${CIRCLE_SHA1} --build-arg TAG="${CIRCLE_SHA1}" .
+            docker build -t ghcr.io/yvannponce/php-devsecops:${CIRCLE_SHA1} --build-arg TAG="${CIRCLE_SHA1}" .
 
             # Push the Docker image
-            docker push ghcr.io/YvannPONCE/php-devsecops:${CIRCLE_SHA1}
+            docker push ghcr.io/yvannponce/php-devsecops:${CIRCLE_SHA1}
 
 
   deploy-ssh-staging:
