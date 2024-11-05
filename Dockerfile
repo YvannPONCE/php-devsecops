@@ -25,7 +25,7 @@ LABEL maintainer="${PROJECT_USERNAME}" \
       org.opencontainers.image.licenses="proprietary" \
       org.opencontainers.image.title="PHP Devops TP" \
       org.opencontainers.image.description="Example of a PHP application automatically encapsulated inside a docker container by the CI pipeline" \
-      org.opencontainers.image.revision="${GIT_COMMIT}" \
+      org.opencontainers.image.revision="${TAG}" \
       org.opencontainers.image.source="${GIT_URL}"
 
 ENV DATABASE_DRIVER=sqlite
