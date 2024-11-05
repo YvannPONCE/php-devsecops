@@ -205,7 +205,7 @@ jobs:
             .
 
             # Push the Docker image
-            docker push $REPOSITORY:$TAG
+            docker push $REPOSITORY:$CIRCLE_SHA1
 
 
   deploy-ssh-staging:
