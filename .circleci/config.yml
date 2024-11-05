@@ -191,13 +191,7 @@ jobs:
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
             # Build the Docker image
-            docker build \
-            -f ./Dockerfile \
-            -t popo \
-            --build-arg TAG="${CIRCLE_SHA1}" \
-            --build-arg GIT_URL= https://github.com/YvannPONCE/php-devsecops/ \
-          
-            .
+            docker build -t popo --build-arg TAG="${CIRCLE_SHA1}" .
 
             # Push the Docker image
             docker push popo
