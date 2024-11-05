@@ -1,5 +1,4 @@
 FROM php:8.2-apache
-LABEL maintainer="YOUR NAME <YOUR EMAIL>"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -8,25 +7,9 @@ ARG SQLITE_YEAR=2023
 
 ARG XDEBUG_VERSION="3.3.0"
 
-ARG BUILD_DATE
 ARG TAG
-ARG GIT_COMMIT
-ARG GIT_URL
-ARG PROJECT_USERNAME="SI5"
 
-ENV VERSION="${TAG}"
-
-# Metadata
-LABEL maintainer="${PROJECT_USERNAME}" \
-      org.opencontainers.image.authors="${PROJECT_USERNAME}" \
-      org.opencontainers.image.url="${GIT_URL}" \
-      org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.vendor="${PROJECT_USERNAME}" \
-      org.opencontainers.image.licenses="proprietary" \
-      org.opencontainers.image.title="PHP Devops TP" \
-      org.opencontainers.image.description="Example of a PHP application automatically encapsulated inside a docker container by the CI pipeline" \
-      org.opencontainers.image.revision="${TAG}" \
-      org.opencontainers.image.source="${GIT_URL}"
+ENV VERSION=${TAG}
 
 ENV DATABASE_DRIVER=sqlite
 ENV DATABASE_DATABASE=/var/www/html/database/db.sqlite
