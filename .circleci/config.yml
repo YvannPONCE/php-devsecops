@@ -173,8 +173,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-#          version: 25.0.3
-#          docker_layer_caching: true
+
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
           command: |
@@ -195,12 +194,9 @@ jobs:
             docker build \
             -f docker/Dockerfile \
             -t popo \
-          #  --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
             --build-arg TAG="${CIRCLE_SHA1}" \
-          #  --build-arg GIT_COMMIT=$(git rev-parse -q --verify HEAD) \
             --build-arg GIT_URL= https://github.com/YvannPONCE/php-devsecops/ \
-           # --build-arg SQLITE_VERSION=3430200 \
-            #--build-arg SQLITE_YEAR=2023 \
+          
             .
 
             # Push the Docker image
