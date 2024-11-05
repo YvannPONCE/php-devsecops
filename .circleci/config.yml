@@ -59,7 +59,7 @@ executors:
     resource_class: small
     shell: /bin/bash
     docker:
-      - image: cimg/php:8.1-node
+      - image: cimg/deploy:2022.06.1
         name: localhost
   simple-executor:
     resource_class: small
@@ -172,8 +172,9 @@ jobs:
     executor: builder-executor
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
+#      - setup_remote_docker:
+#          version: 20.10.7
+#          docker_layer_caching: true
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
           command: |
