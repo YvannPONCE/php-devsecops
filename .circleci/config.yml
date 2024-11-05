@@ -201,7 +201,7 @@ jobs:
             --build-arg GIT_URL= https://github.com/YvannPONCE/php-devsecops/
            # --build-arg SQLITE_VERSION=3430200 \
             #--build-arg SQLITE_YEAR=2023 \
-            .
+            #.
 
             # Push the Docker image
             docker push popo
