@@ -54,7 +54,7 @@ executors:
     shell: /bin/bash
     docker:
       - name: localhost
-        image: cimg/php:8.1
+        image: cimg/php:8.2
   builder-executor:
     resource_class: small
     shell: /bin/bash
@@ -234,14 +234,6 @@ workflows:
       - test-phpunit:
           requires:
             - build-setup
-      - hold:
-          type: approval
-          filters:
-            branches:
-              only:
-                - main
-                - master
-                - /^release\/.*/
       # - deploy-ssh-production:
       #     requires:
       #         - hold
@@ -250,13 +242,13 @@ workflows:
       #         only:
       #           - main
       #           - master
-      - deploy-ssh-staging:
-          requires:
-            - hold
-          filters:
-            branches:
-              only:
-                - /^release\/.*/
+      #- deploy-ssh-staging:
+      #    requires:
+      #      - hold
+      #    filters:
+      #      branches:
+      #        only:
+      #          - /^release\/.*/
 
 
   container_workflow:
