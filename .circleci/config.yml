@@ -272,11 +272,6 @@ workflows:
 
   container_workflow:
     jobs:
-      - build-setup:
-        filters:
-            branches:
-              only:
-                - main
       - build-docker-image:
           filters:
             branches:
