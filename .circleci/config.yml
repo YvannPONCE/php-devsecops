@@ -230,7 +230,7 @@ workflows:
       #- test-phpunit:
       #    requires:
       #      - build-setup
-      - build-docker-image:
+      - build-docker-image
       - hold:
           type: approval
           requires:
