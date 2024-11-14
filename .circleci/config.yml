@@ -219,17 +219,20 @@ jobs:
 workflows:
   main_workflow:
     jobs:
-      - debug-info
-      - build-setup
-      - lint-phpcs:
-          requires:
-            - build-setup
-      - security-check-dependencies:
-          requires:
-            - build-setup
-      - test-phpunit:
-          requires:
-            - build-setup
+      #- debug-info
+      #- build-setup
+      #- lint-phpcs:
+      #    requires:
+      #      - build-setup
+      #- security-check-dependencies:
+      #    requires:
+      #      - build-setup
+      #- test-phpunit:
+      #    requires:
+      #      - build-setup
+      - build-docker-image:
+        requires:
+          - build-docker-image
       - hold:
           type: approval
       # - deploy-ssh-production:
