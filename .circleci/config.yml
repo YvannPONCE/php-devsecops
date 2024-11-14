@@ -200,20 +200,16 @@ jobs:
   deploy-ssh-staging:
     executor: simple-executor
     steps:
+      - checkout
       - add_ssh_keys:
           fingerprints:
             - "${STAGING_SSH_FINGERPRINT}"
       - deploy:
-          name: Deploy to AWS
+          name: Deploy to Ozeliurs Cloud provider
           command: |
-            set -x
-            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST \<< EOF
-            PHP_FPM_VERSION=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1-2)
-            cd $STAGING_DEPLOY_DIRECTORY
-            git pull origin $CIRCLE_BRANCH
-            composer install --optimize-autoloader --no-interaction --prefer-dist
-            (flock -w 10 9 || exit 1; sudo -S service php${PHP_FPM_VERSION}-fpm restart ) 9>/tmp/fpm.lock
-            EOF
+            scp -P 17625 docker-compose.yml debian@fbx.ozeliurs.com:/home/debian/app/
+            ssh -p 17625 -o StrictHostKeyChecking=no debian@fbx.ozeliurs.com "docker compose -f /home/debian/app/docker-compose.yml up -d"
+            
 
 
 #  deploy-ssh-production:
