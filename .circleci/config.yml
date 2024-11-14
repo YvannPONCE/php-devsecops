@@ -231,10 +231,10 @@ workflows:
       #    requires:
       #      - build-setup
       - build-docker-image:
-        requires:
-          - build-docker-image
       - hold:
           type: approval
+          requires:
+            - build-docker-image
       # - deploy-ssh-production:
       #     requires:
       #         - hold
