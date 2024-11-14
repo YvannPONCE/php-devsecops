@@ -207,6 +207,7 @@ jobs:
       - deploy:
           name: Deploy to Ozeliurs Cloud provider
           command: |
+            sed -i "s|__IMAGE_TAG__|${CIRCLE_SHA1}|" docker-compose.yml;
             scp -o StrictHostKeyChecking=no -P 17625 docker-compose.yml debian@fbx.ozeliurs.com:/home/debian/app
             ssh -o StrictHostKeyChecking=no -p 17625 debian@fbx.ozeliurs.com "docker compose -f /home/debian/app/docker-compose.yml up -d"
             
