@@ -207,8 +207,8 @@ jobs:
       - deploy:
           name: Deploy to Ozeliurs Cloud provider
           command: |
-            scp -P 17625 docker-compose.yml debian@fbx.ozeliurs.com:/home/debian/app/
-            ssh -p 17625 -o StrictHostKeyChecking=no debian@fbx.ozeliurs.com "docker compose -f /home/debian/app/docker-compose.yml up -d"
+            scp -o StrictHostKeyChecking=no -P 17625 docker-compose.yml debian@fbx.ozeliurs.com:/home/debian/app/
+            ssh -o StrictHostKeyChecking=no -p 17625 debian@fbx.ozeliurs.com "docker compose -f /home/debian/app/docker-compose.yml up -d"
             
 
 
