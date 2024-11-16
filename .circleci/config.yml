@@ -150,7 +150,7 @@ jobs:
           destination: phpmd-report
         
 
-  lint-phpdoc-check:
+  lint-php-doc-check:
     executor: php-executor
     steps:
       - *attach_workspace
@@ -160,7 +160,7 @@ jobs:
       - run:
           name: Run PHP Doc Check
           command: |
-            ./vendor/bin/phpdoc-check --directory ./src --report=phpdoc-report.txt
+            ./vendor/bin/php-doc-check --directory ./src --report=phpdoc-report.txt
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
@@ -168,8 +168,8 @@ jobs:
               exit $result
             fi
       - store_artifacts:
-          path: phpdoc-report.txt
-          destination: phpdoc-report
+          path: php-doc-report.txt
+          destination: php-doc-report
 
   security-check-dependencies:
     executor: php-executor
@@ -272,7 +272,7 @@ workflows:
       - lint-phpmd:
           requires:
             - build-setup
-      - lint-phpdoc-check:
+      - lint-php-doc-check:
           requires:
             - build-setup
       - security-check-dependencies:
