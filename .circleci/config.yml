@@ -250,6 +250,9 @@ workflows:
       - lint-phpcs:
           requires:
             - build-setup
+      - lint-phpmd:
+          requires:
+            - build-setup
       - security-check-dependencies:
           requires:
             - build-setup
