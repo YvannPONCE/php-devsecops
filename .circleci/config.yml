@@ -138,7 +138,7 @@ jobs:
       - run:
           name: Analyse code with run PHP Mess Detector
           command: |
-            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --extensions=php --ignore=vendor
+            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude=vendor
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
@@ -160,7 +160,7 @@ jobs:
       - run:
           name: Run PHP Doc Check
           command: |
-            ./vendor/bin/php-doc-check ./ --format=text --reportFile=php-doc-report.txt --complexity-warning-threshold=10 --complexity-error-threshold=15 --exclude=vendor
+            ./vendor/bin/php-doc-check ./ --format=text --reportFile=php-doc-report.txt --suffixes=php  --exclude=vendor
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
