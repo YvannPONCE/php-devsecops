@@ -160,7 +160,7 @@ jobs:
       - run:
           name: Run PHP Doc Check
           command: |
-            ./vendor/bin/php-doc-check src/ public/ --exclude=vendor --format=text --reportFile=php-doc-report.txt 
+            ./vendor/bin/php-doc-check src/ public/ --format=text --reportFile=php-doc-report.txt 
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
