@@ -160,7 +160,7 @@ jobs:
       - run:
           name: Run PHP Doc Check
           command: |
-            ./vendor/bin/phpdoc-check ./ --format=json --reportFile=php-doc-report.json
+            ./vendor/bin/php-doc-check ./ --format=json --reportFile=php-doc-report.json
 
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
