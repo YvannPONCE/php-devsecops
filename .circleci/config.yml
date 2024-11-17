@@ -106,7 +106,6 @@ jobs:
           key: v1-dependencies-{{ checksum "composer.json" }}
       - *persist_to_workspace
 
-  # rendre rapport plus joli
   lint-phpcs:
     executor: php-executor
     steps:
@@ -144,7 +143,7 @@ jobs:
           path: phpmetrics-report.html
           destination: phpmetrics-report
 
-  #how to esploit ?
+  #how to exploit ?
   metrics-phploc:
     executor: php-executor
     steps:
@@ -191,31 +190,15 @@ jobs:
       - run:
           name: Check Quality Reports
           command: |
-            echo "Checking for PHP quality report files..."
-            if [ -f "phpmd-report.txt" ]; then
-              echo "Issues found in phpmd-report.txt" >> quality-alert.log
-            else
-              echo "No issues found in phpmd-report.txt" >> quality-alert.log
-            fi
-            
-            if [ -f "phpcs-report.txt" ]; then
-              echo "Issues found in phpcs-report.txt" >> quality-alert.log
-            else
-              echo "No issues found in phpcs-report.txt" >> quality-alert.log
-            fi
-
-            # Check if we have any issues in the reports
             if [ -f "phpmd-report.txt" ] || [ -f "phpcs-report.txt" ]; then
+              echo "All reports are clean."
+            else
               echo "Quality check issues found. Generating an alert log."
               echo "QUALITY CHECK FAILED: Issues found in PHP quality reports." > quality-alert.log
-            else
-              echo "All reports are clean."
             fi
       - store_artifacts:
           path: quality-alert.log
           destination: alerts/quality-check
-
-
   
   quality-approval:
     type: approval
@@ -273,9 +256,10 @@ jobs:
             if grep '"severity": "critical"' security-report.json; then
               echo "Critical vulnerability found. Requiring manual approval."
               echo "CRITICAL VULNERABILITY DETECTED" > critical-alert.log
-              exit 0
+              echo "approval_required=true" >> needs-approval.txt
             else
               echo "No critical vulnerabilities found."
+              echo "approval_required=false" >> needs-approval.txt
             fi
       - store_artifacts:
           path: security-report.json
@@ -283,9 +267,27 @@ jobs:
       - store_artifacts:
           path: critical-alert.log
           destination: alerts/critical
+      - store_artifacts:
+          path: needs-approval.txt
+          destination: approval-status
 
   security-approval:
     type: approval
+    requires:
+      - security-check-dependencies
+    condition:
+      # Cette condition est utilisée pour vérifier le fichier qui indique si une approbation est nécessaire.
+      - run:
+          name: Check if approval is required
+          command: |
+            approval_required=$(cat approval-status/needs-approval.txt | grep approval_required | cut -d'=' -f2)
+            if [ "$approval_required" == "true" ]; then
+              echo "Manual approval is required due to critical vulnerabilities."
+            else
+              echo "No manual approval needed. Proceeding without approval."
+              exit 0  # Permet au job de passer sans approbation si aucune vulnérabilité critique n'est trouvée.
+            fi
+
 
   test-phpunit:
     executor: php-executor
