@@ -144,6 +144,7 @@ jobs:
           path: phpmetrics-report
           destination: phpmetrics-report
 
+  #how to esploit
   metrics-phploc:
     executor: php-executor
     steps:
@@ -152,6 +153,7 @@ jobs:
           name: Download phploc.phar
           command: |
             wget https://phar.phpunit.de/phploc.phar
+            echo "expected-sha256 phploc.phar" | sha256sum -c -
             chmod +x phploc.phar
       - run:
           name: Run phploc
@@ -205,6 +207,7 @@ jobs:
           path: php-doc-report.txt
           destination: php-doc-report
 
+  #pas utile
   security-check-dependencies:
     executor: php-executor
     steps:
@@ -220,7 +223,6 @@ jobs:
       - store_artifacts:
           path: security-report.json
           destination: security-report
-
 
   test-phpunit:
     executor: php-executor
