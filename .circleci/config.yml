@@ -206,8 +206,8 @@ jobs:
       - run:
           name: Run phpstan
           command: ./vendor/bin/phpstan analyse src tests --error-format=junit > phpstan-report.xml
-    store_test_results:
-      path: phpstan-report.xml
+      - store_test_results:
+        path: phpstan-report.xml
 
 
   build-docker-image:
