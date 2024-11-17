@@ -396,9 +396,6 @@ workflows:
   container_workflow:
     jobs:
       - build-docker-image:
-          requires:
-            - quality-approval
-            - security-approval
           filters:
             branches:
               only:
