@@ -211,37 +211,6 @@ jobs:
           path: php-doc-report.txt
           destination: php-doc-report
 
-  #pas utile
-  security-check-dependencies:
-    executor: php-executor
-    steps:
-      - *attach_workspace
-      - run:
-          name: Download and verify local-php-security-checker
-          command: |
-            # Télécharger l'outil
-            curl -L -o local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v2.1.3/local-php-security-checker_linux_amd64
-
-            # Rendre l'outil exécutable
-            chmod +x local-php-security-checker
-
-      - run:
-          name: Check Dependencies
-          command: ./local-php-security-checker --format=json > security-report.json
-      - store_artifacts:
-          path: security-report.json
-          destination: security-report
-      - run:
-          name: Check for Critical Vulnerabilities
-          command: |
-            # Si des vulnérabilités critiques sont trouvées, échouer le job
-            if grep '"severity": "critical"' security-report.json; then
-              echo "Critical vulnerability found. Failing the job."
-              exit 1  # Le job échoue ici si une vulnérabilité critique est trouvée
-            else
-              echo "No critical vulnerabilities found."
-            fi
-
   phpstan:
     executor: php-executor
     steps:
