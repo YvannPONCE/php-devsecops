@@ -151,7 +151,7 @@ jobs:
       - run:
           name: Install bc
           command: |
-            apt-get update && apt-get install -y bc
+            sudo apt-get update && apt-get install -y bc
       - run:
           name: Download phploc.phar
           command: |
