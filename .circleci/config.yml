@@ -176,7 +176,7 @@ jobs:
       - run:
           name: Analyse code with PHP Mess Detector
           command: |
-            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude vendor,tmp > phpmd-report.txt
+            ./vendor/bin/phpmd ./ xml cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude vendor,tmp | xsltproc ./.circleci/junit.xslt > phpmd-report.xml
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               echo "PHP Mess Detector found issues."
@@ -185,9 +185,8 @@ jobs:
             else
               echo "PHP Mess Detector found no issues."
             fi
-      - store_artifacts:
-          path: phpmd-report.txt
-          destination: phpmd-report
+      - store_test_results:
+          path: phpmd-report.xml
         
   #Outil pas très utile
   lint-php-doc-check:
