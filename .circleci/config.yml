@@ -227,7 +227,7 @@ jobs:
       - run: 
           name: Add docker signing key
           command: |
-            mkdir ~/.docker/trust/private
+            mkdir -p ~/.docker/trust/private
             infisical secrets get DOCKER_SIGN_PRIVATE_KEY --projectId=${INFISICAL_PROJECT_ID} --token=${INFISICAL_SERVICE_TOKEN}  --plain >  ~/.docker/trust/private/${DOCKER_TRUSTK_KEY_ID}.key
             chmod 600 ~/.docker/trust/private/${DOCKER_TRUSTK_KEY_ID}.key
             export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$DOCKER_PASSPHRASE
