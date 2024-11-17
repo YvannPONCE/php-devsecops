@@ -227,8 +227,8 @@ jobs:
       - run: 
           name: Add docker signing key
           command: |
-            infisical secrets get DOCKER_SIGN_PRIVATE_KEY --projectId=${INFISICAL_PROJECT_ID} --token=${INFISICAL_SERVICE_TOKEN} >  ~/trustkey.key && chmod 700 ~/trustkey.key
-            docker trust key load ~/trustkey.key
+            infisical secrets get DOCKER_SIGN_PRIVATE_KEY --projectId=${INFISICAL_PROJECT_ID} --token=${INFISICAL_SERVICE_TOKEN}  --plain >  ~/trustkey.key && chmod 700 ~/trustkey.key
+            echo ${DOCKER_PASSPHRASE} | docker trust signer add ~/trustkey.key
             rm ~/trustkey.key
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
