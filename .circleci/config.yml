@@ -224,12 +224,6 @@ jobs:
       - checkout
       - setup_remote_docker
       - infisical-setup
-      - run: 
-          name: Add docker signing key
-          command: |
-            infisical secrets get DOCKER_SIGN_PRIVATE_KEY --projectId=${INFISICAL_PROJECT_ID} --token=${INFISICAL_SERVICE_TOKEN}  --plain >  ~/trustkey.key && chmod 700 ~/trustkey.key
-            echo ${DOCKER_PASSPHRASE} | docker trust key load  ~/trustkey.key
-            rm ~/trustkey.key
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
           command: |
@@ -250,7 +244,7 @@ jobs:
             docker build -t ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} --build-arg TAG="${CIRCLE_SHA1}" .
 
             # Push the Docker image
-            docker push ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1}
+            echo ${DOCKER_PASSPHRASE} | docker push ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1}
 
 
   deploy-ssh-staging:
