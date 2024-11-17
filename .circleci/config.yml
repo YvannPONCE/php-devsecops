@@ -127,6 +127,7 @@ jobs:
             fi
       - store_test_results:
           path: phpcs-report.xml
+          destination: phpcs-report
 
 
   # how to exploi--> a améliorer et à mettre dans les axes cyber
