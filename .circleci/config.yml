@@ -412,7 +412,7 @@ workflows:
       - deploy-ssh-staging:
           type: approval
           requires:
-            - build-docker-image
+            - security-trivy-scan
           filters:
             branches:
               only:
