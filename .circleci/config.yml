@@ -77,7 +77,7 @@ commands:
             curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
             sudo apt-get update  
             sudo apt-get install -y infisical
-            infisical login --token $INFISICAL_TOKEN
+            infisical login --method=universal-auth --client-id=${INFISICAL_CLIENT_ID} --client-secret=${INFISICAL_CLIENT_SECRET} 
             infisical fetch --env development
 
 jobs:
