@@ -192,7 +192,7 @@ jobs:
       - run:
           name: Run PHP Doc Check
           command: |
-            ./vendor/bin/php-doc-check ./src --format=text --reportFile=php-doc-report.txt
+            ./vendor/bin/php-doc-check ./src --format=json --min-complexity=5 --strict --reportFile=php-doc-report.json
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
@@ -200,7 +200,7 @@ jobs:
               exit $result
             fi
       - store_artifacts:
-          path: php-doc-report.txt
+          path: php-doc-report.json
           destination: php-doc-report
 
   security-check-dependencies:
