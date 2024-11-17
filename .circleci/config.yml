@@ -138,7 +138,7 @@ jobs:
       - run:
           name: Run PHP Metrics and generate report
           command: |
-            ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./
+            ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./src
       - store_artifacts:
           path: phpmetrics-report
           destination: phpmetrics-report
@@ -155,7 +155,7 @@ jobs:
       - run:
           name: Run phploc
           command: |
-            php phploc.phar ./ > phploc-report.txt
+            php phploc.phar ./src > phploc-report.txt
       - store_artifacts:
           path: phploc-report.txt
           destination: phploc-report
@@ -170,7 +170,7 @@ jobs:
       - run:
           name: Analyse code with run PHP Mess Detector
           command: |
-            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude=vendor > phpmd-report.txt
+            ./vendor/bin/phpmd ./src text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude=vendor > phpmd-report.txt
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
@@ -192,7 +192,7 @@ jobs:
       - run:
           name: Run PHP Doc Check
           command: |
-            ./vendor/bin/php-doc-check ./ --format=text --reportFile=php-doc-report.txt
+            ./vendor/bin/php-doc-check ./src --format=text --reportFile=php-doc-report.txt
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
