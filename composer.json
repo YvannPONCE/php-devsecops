@@ -2,15 +2,15 @@
   "type": "project",
   "description": "Simple PHP project for the DevSecOps class",
   "require": {
-    "php": ">=8.2.0",
+    "php": "^8.3.13",
     "ext-gd": "*",
-    "nesbot/carbon": "^2.72.1",
-    "vlucas/phpdotenv": "^5.6.0"
+    "nesbot/carbon": "^3.8.2",
+    "vlucas/phpdotenv": "^5.6.1"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",
-    "phpunit/phpunit": "^10.5",
-    "phpmetrics/phpmetrics": "^0.0.1"
+    "phpunit/phpunit": "^11.4.3",
+    "phpmetrics/phpmetrics": "^3.0.0rc6"
   },
   "autoload": {
     "psr-4": {
