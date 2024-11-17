@@ -228,11 +228,22 @@ jobs:
             # Rendre l'outil exécutable
             chmod +x local-php-security-checker
       - run:
-          name: Run local-php-security-checker
-          command: ./local-php-security-checker --format=json > security-report.json
+          name: Run local-php-security-checker and fail on critical issues
+          command: |
+            # Exécuter l'analyse des vulnérabilités
+            ./local-php-security-checker --format=json > security-report.json
+
+            # Vérifier si des vulnérabilités critiques sont trouvées
+            CRITICAL_COUNT=$(jq '.vulnerabilities | map(select(.severity == "critical")) | length' security-report.json)
+            if [ "$CRITICAL_COUNT" -gt 0 ]; then
+              echo "Des vulnérabilités critiques ont été détectées !"
+              cat security-report.json
+              exit 1
+            fi
       - store_artifacts:
           path: security-report.json
           destination: security-report
+
 
   test-phpunit:
     executor: php-executor
