@@ -230,11 +230,11 @@ jobs:
             mkdir -p ~/.docker/trust/private
             infisical secrets get DOCKER_SIGN_PRIVATE_KEY --projectId=${INFISICAL_PROJECT_ID} --token=${INFISICAL_SERVICE_TOKEN}  --plain >  ~/.docker/trust/private/${DOCKER_TRUSTK_KEY_ID}.key
             chmod 600 ~/.docker/trust/private/${DOCKER_TRUSTK_KEY_ID}.key
-            echo "${DOCKER_PUBLIC_KEY}" > ~/docker.pub
+            echo "${DOCKER_PUBLIC_KEY}" > docker-key.pub
             cat ~/docker.pub
             export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$DOCKER_PASSPHRASE
             docker trust key load ~/.docker/trust/private/${DOCKER_TRUSTK_KEY_ID}.key
-            docker trust signer add --key ~/docker.pub circle ghcr.io/yvannponce/php-devsecops
+            docker trust signer add --key docker-key.pub circle ghcr.io/yvannponce/php-devsecops
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
           command: |
