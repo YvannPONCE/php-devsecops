@@ -175,34 +175,15 @@ jobs:
             ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude vendor,tmp > phpmd-report.txt
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
-              exit 0
+              echo "PHP Mess Detector found issues."
+              cat phpmd-report.txt
+              exit 1  # Échoue le job si des problèmes sont trouvés
             else
-              exit $result
+              echo "PHP Mess Detector found no issues."
             fi
       - store_artifacts:
           path: phpmd-report.txt
           destination: phpmd-report
-
-  gate-quality-check:
-    executor: simple-executor
-    steps:
-      - run:
-          name: Check Quality Reports
-          command: |
-            if [ -f "phpmd-report.txt" ] || [ -f "phpcs-report.txt" ]; then
-              echo "All reports are clean."
-            else
-              echo "Quality check issues found. Generating an alert log."
-              echo "QUALITY CHECK FAILED: Issues found in PHP quality reports." > quality-alert.log
-            fi
-      - store_artifacts:
-          path: quality-alert.log
-          destination: alerts/quality-check
-  
-  quality-approval:
-    type: approval
-    requires:
-      - gate-quality-check
         
   #Outil pas très utile
   lint-php-doc-check:
@@ -386,13 +367,6 @@ workflows:
       - lint-phpmd:
           requires:
             - build-setup
-      - gate-quality-check:
-          requires:
-            - lint-phpcs
-            - lint-phpmd
-      - quality-approval:
-          requires:
-            - gate-quality-check
       - lint-php-doc-check:
           requires:
             - build-setup
