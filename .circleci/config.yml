@@ -77,8 +77,6 @@ commands:
             curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
             sudo apt-get update  
             sudo apt-get install -y infisical
-            infisical login --method=universal-auth --client-id=${INFISICAL_CLIENT_ID} --client-secret=${INFISICAL_CLIENT_SECRET} 
-            infisical fetch --env development
 
 jobs:
   debug-info:
@@ -225,10 +223,10 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - get-infisical-secrets
+      - infisical-setup
       - run: 
           name: Add docker signing key
-          command: echo "$DOCKER_SIGNING_KEY" > ~/.docker/trust/private
+          command: infisical secrets get DOCKER_SIGN_PRIVATE_KEY --projectId=${INFISICAL_PROJECT_ID} --token=${INFISICAL_SERVICE_TOKEN} >  ~/.docker/trust/private
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
           command: |
