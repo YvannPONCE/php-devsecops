@@ -269,7 +269,7 @@ jobs:
           destination: alerts/critical
 
   security-approval:
-  type: approval
+    type: approval
 
   test-phpunit:
     executor: php-executor
