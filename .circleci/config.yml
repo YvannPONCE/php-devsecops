@@ -312,6 +312,19 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install Node Version Manager (nvm) and Node.js
+          command: |
+            # Installe NVM (Node Version Manager)
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+            # Charge nvm dans l'environnement actuel (nécessaire après installation)
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            # Installe la version de Node.js (par exemple, v22)
+            nvm install 22
+            # Vérifie les versions de Node.js et npm
+            node -v
+            npm -v
+      - run:
           name: Install Snyk CLI
           command: npm install -g snyk
       - run:
@@ -332,6 +345,7 @@ jobs:
             else
               echo "No critical vulnerabilities found."
             fi
+
 
 
   build-docker-image:
