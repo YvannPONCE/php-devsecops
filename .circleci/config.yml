@@ -360,7 +360,10 @@ workflows:
       - lint-phpmd:
           requires:
             - build-setup
-      - gate-quality-check
+      - gate-quality-check:
+          requires:
+            - lint-phpcs
+            - lint-phpmd
       - quality-approval:
           requires:
             - gate-quality-check
