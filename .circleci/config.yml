@@ -115,15 +115,16 @@ jobs:
       - run:
           name: Run PHP_CodeSniffer with Custom Ruleset in the project root
           command: |
-            ./vendor/bin/phpcs --standard=phpcs.xml --report-full=phpcs-report.txt --report=junit --extensions=php --ignore=vendor/ .
+            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.xml --report=junit --extensions=php --ignore=vendor/ .
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
             else
               exit $result
             fi
-      - store_test_results:
-          path: phpcs-report.txt
+      - store_artifacts:
+          path: phpcs-report.xml
+          destination: phpcs-report
 
 
   security-check-dependencies:
