@@ -274,7 +274,7 @@ jobs:
       - run:
           name: Check for vulnerabilities in the Trivy report
           command: |
-            if grep -q 'CRITICAL' trivy-report.txt || grep -q 'HIGH' trivy-report.txt; then
+            if grep -q 'CRITICAL' junit-report.xml || grep -q 'HIGH' junit-report.xml; then
               echo "Critical or High vulnerabilities found. Failing the job."
               exit 1
             else
