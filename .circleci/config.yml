@@ -258,6 +258,7 @@ jobs:
 
             # Sanitize the repository name and branch name
             REPOSITORY=$(echo "ghcr.io/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" | tr '[:upper:]' '[:lower:]' | tr -d '_')
+            REPOSITORY="$REPOSITORY/phpapp"
             TAG=$(echo $CIRCLE_BRANCH | tr '[:upper:]' '[:lower:]' | tr '/' '-' | tr -cd '[:alnum:]._-' | cut -c 1-128)
 
             # Login to GHCR
