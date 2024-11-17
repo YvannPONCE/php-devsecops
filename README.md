@@ -6,10 +6,10 @@ La pipeline est structurée autour des **jobs**, des **executors**, et des **wor
 
 ---
 
-### **2. Recommandations de nommage**  
+### ✏️ **2. Recommandations de nommage**  
 Pour maintenir une configuration lisible et cohérente, nous adoptons une convention de nommage pour les jobs :  
-- **Préfixes** : Indiquent le type de tâche (`build-`, `lint-`, `test-`, etc.).  
-- **Suffixes** : Spécifient les outils ou technologies utilisées (ex. `-phpcs`, `-phpunit`).  
+- **Préfixes** : Indiquent le type de tâche (`build-`, `lint-`, `test-`, `metrics-`, etc.).  
+- **Suffixes** : Spécifient les outils ou technologies utilisées (ex. `-phpcs`, `-phpunit`, `-phpmetrics`).  
 
 ---
 
@@ -34,7 +34,7 @@ executors:
 
 ---
 
-### 📋 **4. Description des jobs**  
+### **4. Description des jobs**  
 
 #### 🔍 **a. Jobs de debug**  
 Vérifie les variables d’environnement et les chemins disponibles :  
@@ -71,7 +71,8 @@ build-setup:
 ```  
 
 #### 🧹 **c. Analyse de qualité**  
-1. 🛡️ **Lint PHP_CodeSniffer (PHPCS)** :  
+
+1. 🛡️ **Lint PHP_CodeSniffer (PHPCS)**  
    - Vérifie la conformité aux standards de code PHP.  
    ```yaml
    lint-phpcs:
@@ -80,7 +81,7 @@ build-setup:
        - *attach_workspace
        - run:
            name: Install PHP_CodeSniffer
-           command: composer require --dev squizlabs/php_codesniffer
+           command: composer require --dev squizlabs/phpcodesniffer
        - run:
            name: Analyse Code
            command: ./vendor/bin/phpcs --standard=phpcs.xml .
@@ -89,7 +90,7 @@ build-setup:
            destination: phpcs-report
    ```  
 
-2. 🚨 **PHP Mess Detector (PHPMD)** :  
+2. 🚨 **PHP Mess Detector (PHPMD)**  
    - Détecte les mauvaises pratiques de codage.  
    ```yaml
    lint-phpmd:
@@ -107,21 +108,73 @@ build-setup:
            destination: phpmd-report
    ```  
 
-#### 🧪 **d. Tests**  
-1. **Tests unitaires avec PHPUnit** :  
-   - Exécute les tests unitaires définis.  
+---
+
+#### 📊 **d. Analyse des métriques**  
+
+1. 📈 **PHP Metrics (PHPMetrics)**  
+   - Fournit des rapports visuels sur la complexité, la maintenabilité, et les métriques de code.  
    ```yaml
-   test-phpunit:
+   metrics-phpmetrics:
      executor: php-executor
      steps:
        - *attach_workspace
        - run:
-           name: Install PHPUnit
-           command: composer require --dev phpunit/phpunit
+           name: Install PHP Metrics
+           command: composer require --dev phpmetrics/phpmetrics
        - run:
-           name: Run Tests
-           command: ./vendor/bin/phpunit
+           name: Run PHP Metrics
+           command: |
+             ./vendor/bin/phpmetrics --exclude=vendor,tmp --report-html=phpmetrics-report.html ./src
+       - store_artifacts:
+           path: phpmetrics-report.html
+           destination: phpmetrics-report
+   ```   
+
+2. 🧮 **PHPLoc (PHP Lines of Code)**  
+   - Mesure les statistiques de code pour une vue d'ensemble rapide.  
+   ```yaml
+   metrics-phploc:
+     executor: php-executor
+     steps:
+       - *attach_workspace
+       - run:
+           name: Download PHPLoc
+           command: |
+             wget https://phar.phpunit.de/phploc.phar
+             chmod +x phploc.phar
+       - run:
+           name: Run PHPLoc
+           command: |
+             php phploc.phar ./src > phploc-report.txt
+       - store_artifacts:
+           path: phploc-report.txt
+           destination: phploc-report
    ```  
+
+---
+
+#### 🔒 **e. Gate de qualité**  
+- Valide la qualité des rapports générés pour alerter en cas de problème.  
+```yaml
+gate-quality-check:
+  executor: simple-executor
+  steps:
+    - run:
+        name: Check Quality Reports
+        command: |
+          if [ -f "phpmd-report.txt" ] || [ -f "phpcs-report.txt" ]; then
+            echo "All reports are clean."
+          else
+            echo "Quality check issues found. Generating an alert log."
+            echo "QUALITY CHECK FAILED: Issues found in PHP quality reports." > quality-alert.log
+        exit 1
+    - store_artifacts:
+        path: quality-alert.log
+        destination: alerts/quality-check
+```  
+**À exploiter pour la cybersécurité** :  
+- Ajouter des règles spécifiques (ex. OWASP) pour alerter sur des risques détectés automatiquement.
 
 ---
 
@@ -140,12 +193,24 @@ workflows:
       - lint-phpmd:
           requires:
             - build-setup
-      - test-phpunit:
+      - metrics-phpmetrics:
           requires:
             - build-setup
+      - metrics-phploc:
+          requires:
+            - build-setup
+      - gate-quality-check:
+          requires:
+            - lint-phpcs
+            - lint-phpmd
+            - metrics-phpmetrics
+            - metrics-phploc
 ```  
 
 ---
 
-### **6. Extensions**  
+### 🚀 **6. Extensions**  
 - 📢 **Alertes** : Les artefacts générés (rapports d’analyse ou de sécurité) sont stockés et peuvent déclencher des alertes en cas d’échec.  
+- 🛡️ **Axes cybersécurité** :  
+  - Exploiter les rapports de métriques pour identifier et limiter les zones à risque.  
+  - Intégrer une validation continue avec des règles spécifiques pour éviter les vulnérabilités connues.  
