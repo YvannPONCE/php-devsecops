@@ -146,16 +146,16 @@ jobs:
   #how to exploit ?
   metrics-phploc:
     executor: php-executor
-    environment:
-      CLASS_COMPLEXITY_THRESHOLD: 10
-      METHOD_COMPLEXITY_THRESHOLD: 5
     steps:
       - *attach_workspace
+      - run:
+          name: Install bc
+          command: |
+            apt-get update && apt-get install -y bc
       - run:
           name: Download phploc.phar
           command: |
             wget https://phar.phpunit.de/phploc.phar
-            echo "expected-sha256 phploc.phar" | sha256sum -c -
             chmod +x phploc.phar
       - run:
           name: Run phploc
@@ -166,10 +166,17 @@ jobs:
           command: |
             class_complexity=$(grep "Average Complexity per Class" phploc-report.txt | awk '{print $5}')
             method_complexity=$(grep "Average Complexity per Method" phploc-report.txt | awk '{print $5}')
+
+            if [ -z "$class_complexity" ] || [ -z "$method_complexity" ]; then
+              echo "Complexity metrics could not be extracted. Please check phploc-report.txt."
+              exit 1
+            fi
+
             if [ $(echo "$class_complexity > $CLASS_COMPLEXITY_THRESHOLD" | bc) -eq 1 ]; then
               echo "Warning: Cyclomatic complexity for classes is too high ($class_complexity)."
               exit 1
             fi
+
             if [ $(echo "$method_complexity > $METHOD_COMPLEXITY_THRESHOLD" | bc) -eq 1 ]; then
               echo "Warning: Cyclomatic complexity for methods is too high ($method_complexity)."
               exit 1
