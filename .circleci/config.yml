@@ -158,7 +158,7 @@ jobs:
           name: Run phploc
           command: |
             php phploc.phar ./src > phploc-report.txt
-            - run:
+      - run:
           name: Check Cyclomatic Complexity
           command: |
             class_complexity=$(grep "Average Complexity per Class" phploc-report.txt | awk '{print $5}')
