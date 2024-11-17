@@ -292,7 +292,7 @@ jobs:
       - store_test_results:
           path: tests/test-results.xml
 
-    security-trivy-scan:
+  security-trivy-scan:
     executor: simple-executor
     steps:
       - checkout
