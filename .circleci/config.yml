@@ -254,6 +254,7 @@ jobs:
     executor: simple-executor
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Install Trivy
           command: |
@@ -266,24 +267,16 @@ jobs:
             # Login to GHCR
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
             docker pull ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
-            trivy image --exit-code 1 --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
+            curl -o junit.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/junit.tpl
+            trivy image --exit-code 1 --format template --template junit.tpl -o junit-report.xml --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
+      - store_test_results:
+          path: junit-report.xml
       - run:
           name: Check for critical vulnerabilities and create GitHub issue
           command: |
-            # Check if the Trivy report contains HIGH or CRITICAL vulnerabilities
-            if grep -q 'CRITICAL' trivy-report.txt || grep -q 'HIGH' trivy-report.txt; then
-              echo "Critical or High vulnerabilities found. Creating GitHub issue..."
-
-              # Prepare the issue title and body
-              ISSUE_TITLE=":warning: Critical or High vulnerabilities found in Docker image ${CIRCLE_SHA1}"
-              ISSUE_BODY="*Vulnerabilities found in Docker image* ${CIRCLE_SHA1}:\n\n$(cat trivy-report.txt)"
-
-              # Create GitHub issue via API
-              curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
-                -d "{\"title\": \"$ISSUE_TITLE\", \"body\": \"$ISSUE_BODY\"}" \
-                https://api.github.com/repos/YvannPONCE/php-devsecops/issues  
-
-              exit 1  # Fail the job if critical vulnerabilities are found
+            if grep -q 'CRITICAL' junit-report.xml || grep -q 'HIGH' junit-report.xml; then
+              echo "Critical or High vulnerabilities found. Failing the job."
+              exit 1
             else
               echo "No critical vulnerabilities found. All good!"
             fi
