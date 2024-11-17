@@ -114,7 +114,7 @@ jobs:
       - run:
           name: Run PHP_CodeSniffer with Custom Ruleset in the project root
           command: |
-            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.txt --report=full --extensions=php --ignore=vendor/ .
+            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.xml --report=junit --extensions=php --ignore=vendor/ .
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               echo "PHP_CodeSniffer found issues."
@@ -123,9 +123,8 @@ jobs:
             else
               echo "PHP_CodeSniffer found no issues."
             fi
-      - store_artifacts:
-          path: phpcs-report.txt  # Stocker le fichier de rapport .txt
-          destination: phpcs-report
+      - store_test_results:
+          path: phpcs-report.xml
 
 
   # how to exploi--> a améliorer et à mettre dans les axes cyber
@@ -167,15 +166,22 @@ jobs:
   lint-phpmd:
     executor: php-executor
     steps:
+      - checkout
       - *attach_workspace
       - run:
           name: Install PHP Mess Detector in CI environment
-          command: composer require --dev phpmd/phpmd
+          command: composer require --dev phpmd/phpmd:^2.15.0
+      - run:
+          name: Install xsltproc
+          command: sudo apt update && sudo apt install xsltproc
       - run:
           name: Analyse code with PHP Mess Detector
           command: |
-            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude vendor,tmp > phpmd-report.txt
+            ./vendor/bin/phpmd ./ xml cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude vendor,tmp > phpmd-report.xml
             result=$?
+
+            xsltproc -o output-junit.xml ./.circleci/junit.xslt  phpmd-report.xml 
+
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               echo "PHP Mess Detector found issues."
               cat phpmd-report.txt
@@ -183,9 +189,8 @@ jobs:
             else
               echo "PHP Mess Detector found no issues."
             fi
-      - store_artifacts:
-          path: phpmd-report.txt
-          destination: phpmd-report
+      - store_test_results:
+          path: output-junit.xml
         
   #Outil pas très utile
   lint-php-doc-check:
@@ -261,7 +266,9 @@ jobs:
             # Login to GHCR
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
             docker pull ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
-            trivy image --exit-code 1 --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} > trivy-report.txt || true
+            trivy image --exit-code 1 --format template --template "@contrib/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
+      - store_test_results:
+          path: junit-report.xml
       - run:
           name: Check for critical vulnerabilities and create GitHub issue
           command: |
@@ -388,7 +395,7 @@ workflows:
       - deploy-ssh-staging:
           type: approval
           requires:
-            - build-docker-image
+            - security-trivy-scan
           filters:
             branches:
               only:
