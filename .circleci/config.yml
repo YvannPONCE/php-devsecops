@@ -47,7 +47,7 @@ attach_workspace: &attach_workspace
     # Must be absolute path or relative path from working_directory
     at: ~/project
 
-# This main executor is used by all jobs unless otherwise specified
+# Executors for different environments
 executors:
   php-executor:
     resource_class: small
@@ -67,8 +67,6 @@ executors:
     docker:
       - image: cimg/base:stable
         name: localhost
-
-
 
 jobs:
   debug-info:
@@ -129,7 +127,7 @@ jobs:
           path: phpcs-report.xml
 
 
-  # how to exploi--> a améliorer et à mettre dans les axes cyber
+  # how to exploit --> a améliorer et à mettre dans les axes cyber
   metrics-phpmetrics:
     executor: php-executor
     steps:
@@ -145,7 +143,7 @@ jobs:
           path: phpmetrics-report.html
           destination: phpmetrics-report
 
-  #how to exploit ?
+  #how to exploit ? conitions sur certaines metrics ?
   metrics-phploc:
     executor: php-executor
     steps:
@@ -164,7 +162,6 @@ jobs:
           path: phploc-report.txt
           destination: phploc-report
 
-  # rendre rapport plus joli
   lint-phpmd:
     executor: php-executor
     steps:
@@ -207,11 +204,6 @@ jobs:
           command: |
             ./vendor/bin/php-doc-check ./ --format=text --exclude=vendor --reportFile=php-doc-report.txt --complexity-error-threshold=6 --complexity-warning-threshold=5
             result=$?
-            if [ $result -eq 1 ] || [ $result -eq 2 ]; then
-              exit 0
-            else
-              exit $result
-            fi
       - store_artifacts:
           path: php-doc-report.txt
           destination: php-doc-report
@@ -251,6 +243,7 @@ jobs:
       - store_test_results:
           path: tests/test-results.xml
 
+
   security-trivy-scan:
     executor: simple-executor
     steps:
@@ -273,14 +266,17 @@ jobs:
       - store_test_results:
           path: junit-report.xml
       - run:
-          name: Check for vulnerabilities in the Trivy report
+          name: Check for critical vulnerabilities and create GitHub issue
           command: |
             if grep -q 'CRITICAL' junit-report.xml || grep -q 'HIGH' junit-report.xml; then
               echo "Critical or High vulnerabilities found. Failing the job."
               exit 1
             else
-              echo "No critical vulnerabilities found."
+              echo "No critical vulnerabilities found. All good!"
             fi
+      - store_artifacts:
+          path: trivy-report.txt
+          destination: trivy-report
 
 
   build-docker-image:
@@ -352,6 +348,9 @@ workflows:
           requires:
             - build-setup
       - test-phpunit:
+          requires:
+            - build-setup
+      - phpstan:
           requires:
             - build-setup
 
