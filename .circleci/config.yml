@@ -196,10 +196,17 @@ jobs:
             else
               echo "Quality check issues found. Generating an alert log."
               echo "QUALITY CHECK FAILED: Issues found in PHP quality reports." > quality-alert.log
+              if [ -f "phpmd-report.txt" ]; then
+                echo "Issues found in phpmd-report.txt" >> quality-alert.log
+              fi
+              if [ -f "phpcs-report.txt" ]; then
+                echo "Issues found in phpcs-report.txt" >> quality-alert.log
+              fi
             fi
       - store_artifacts:
           path: quality-alert.log
           destination: alerts/quality-check
+
   
   quality-approval:
     type: approval
