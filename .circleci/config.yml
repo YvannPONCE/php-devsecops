@@ -69,7 +69,7 @@ executors:
         name: localhost
 
 commands:
-  get-infisical-secrets:
+  infisical-setup:
     steps:
       - run:
           name: Install infisical cli
