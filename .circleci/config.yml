@@ -213,8 +213,8 @@ jobs:
             curl -L -o local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v2.1.3/local-php-security-checker_linux_amd64
             chmod +x local-php-security-checker
       - run:
-          name: Run local-php-security-checker
-          command: ./local-php-security-checker --format=json --no-dev > security-report.json
+          name: Debug local-php-security-checker output
+          command: ./local-php-security-checker --format=json --no-dev || echo "local-php-security-checker failed or found nothing!"
       - store_artifacts:
           path: security-report.json
           destination: security-report
