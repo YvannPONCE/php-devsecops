@@ -147,6 +147,7 @@ jobs:
   test-phpunit:
     executor: php-executor
     steps:
+      - checkout
       - *attach_workspace
       - restore_cache:
           keys:
@@ -176,6 +177,7 @@ jobs:
   php-metrics:
     executor: php-executor
     steps:
+      - checkout
       - *attach_workspace
       - restore_cache:
           keys:
