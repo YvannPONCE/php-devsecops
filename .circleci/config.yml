@@ -256,12 +256,8 @@ workflows:
       #- security-check-dependencies:
       #    requires:
       #      - build-setup
-      - test-phpunit:
-          requires:
-            - build-setup
-      - php-metrics:
-          requires:
-            - build-setup
+      - test-phpunit
+      - php-metrics
       #- build-docker-image
       #- hold:
       #    type: approval
