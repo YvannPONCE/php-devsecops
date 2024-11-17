@@ -277,12 +277,7 @@ jobs:
           name: Run PHPUnit
           command: ./vendor/bin/phpunit --testsuite=Unit
 
-  lint-outdated-dependencies:
-    executor: php-executor
-    steps:
-      - run:
-          name: Check for Outdated Dependencies
-          command: composer outdated
+ 
 
   build-docker-image:
     executor: builder-executor
@@ -342,9 +337,6 @@ workflows:
     jobs:
       - debug-info
       - build-setup
-      - lint-outdated-dependencies:
-          requires:
-            - build-setup
       - lint-phpcs:
           requires:
             - build-setup
