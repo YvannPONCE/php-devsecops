@@ -128,6 +128,21 @@ jobs:
           path: phpcs-report.txt
           destination: phpcs-report
 
+  metrics-phpmetrics:
+    executor: php-executor
+    steps:
+      - *attach_workspace
+      - run:
+          name: Install PHP Metrics
+          command: composer require --dev phpmetrics/phpmetrics
+      - run:
+          name: Run PHP Metrics and generate report
+          command: |
+            ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./
+      - store_artifacts:
+          path: phpmetrics-report
+          destination: phpmetrics-report
+
   lint-phpmd:
     executor: php-executor
     steps:
@@ -267,6 +282,9 @@ workflows:
       - debug-info
       - build-setup
       - lint-phpcs:
+          requires:
+            - build-setup
+      - metrics-phpmetrics:
           requires:
             - build-setup
       - lint-phpmd:
