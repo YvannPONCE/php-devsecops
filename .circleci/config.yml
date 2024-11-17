@@ -267,10 +267,9 @@ jobs:
             # Login to GHCR
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
             docker pull ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
-            trivy image --exit-code 1 --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} > trivy-report.txt || true
-      - store_artifacts:
-          path: trivy-report.txt
-          destination: trivy-report
+            trivy image --exit-code 1 --format template --template "@contrib/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
+      - store_test_results:
+          path: junit-report.xml
       - run:
           name: Check for vulnerabilities in the Trivy report
           command: |
