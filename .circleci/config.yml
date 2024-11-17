@@ -143,6 +143,21 @@ jobs:
           path: phpmetrics-report
           destination: phpmetrics-report
 
+  metrics-phploc:
+    executor: php-executor
+    steps:
+      - *attach_workspace
+      - run:
+          name: Install phploc
+          command: composer require --dev sebastian/phploc
+      - run:
+          name: Run phploc
+          command: |
+            ./vendor/bin/phploc ./ > phploc-report.txt
+      - store_artifacts:
+          path: phploc-report.txt
+          destination: phploc-report
+
   lint-phpmd:
     executor: php-executor
     steps:
@@ -285,6 +300,9 @@ workflows:
           requires:
             - build-setup
       - metrics-phpmetrics:
+          requires:
+            - build-setup
+      - metrics-phploc:
           requires:
             - build-setup
       - lint-phpmd:
