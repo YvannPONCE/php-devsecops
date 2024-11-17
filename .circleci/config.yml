@@ -68,7 +68,15 @@ executors:
       - image: cimg/base:stable
         name: localhost
 
-
+commands:
+  get-infisical-secrets:
+    steps:
+      - run:
+          name: Install infisical cli
+          command: |
+            curl -sSL https://cli.infisical.com/install | bash
+            infisical login --token $INFISICAL_TOKEN
+            infisical fetch --env development
 
 jobs:
   debug-info:
@@ -215,7 +223,10 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-
+      - get-infisical-secrets
+      - run: 
+          name: Add docker signing key
+          command: echo "$DOCKER_SIGNING_KEY" > ~/.docker/trust/private
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
           command: |
