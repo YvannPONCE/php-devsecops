@@ -292,6 +292,35 @@ jobs:
       - store_test_results:
           path: tests/test-results.xml
 
+    security-trivy-scan:
+    executor: simple-executor
+    steps:
+      - checkout
+      - run:
+          name: Install Trivy
+          command: |
+            curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.29.2/trivy_0.29.2_Linux-x86_64.deb -o trivy.deb
+            sudo dpkg -i trivy.deb
+            rm trivy.deb
+      - run:
+          name: Run Trivy scan on Docker image
+          command: |
+            docker pull ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
+            trivy image --exit-code 1 --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} > trivy-report.txt || true
+      - store_artifacts:
+          path: trivy-report.txt
+          destination: trivy-report
+      - run:
+          name: Check for vulnerabilities in the Trivy report
+          command: |
+            if grep -q 'CRITICAL' trivy-report.txt || grep -q 'HIGH' trivy-report.txt; then
+              echo "Critical or High vulnerabilities found. Failing the job."
+              exit 1
+            else
+              echo "No critical vulnerabilities found."
+            fi
+
+
   build-docker-image:
     executor: builder-executor
     steps:
@@ -387,6 +416,19 @@ workflows:
                 - /^release\/.*/
                 - /^hotfix\/.*/
                 - /^bugfix\/.*/    
+      - security-trivy-scan:
+          requires:
+            - build-docker-image
+          filters:
+            branches:
+              only:
+                - master
+                - main
+                - develop
+                - /^feature\/.*/
+                - /^release\/.*/
+                - /^hotfix\/.*/
+                - /^bugfix\/.*/   
       - deploy-ssh-staging:
           type: approval
           requires:
