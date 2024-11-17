@@ -255,6 +255,7 @@ jobs:
     executor: simple-executor
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Install Trivy
           command: |
