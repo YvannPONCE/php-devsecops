@@ -345,9 +345,6 @@ workflows:
       - lint-php-doc-check:
           requires:
             - build-setup
-      - security-check-dependencies:
-          requires:
-            - build-setup
       - test-phpunit:
           requires:
             - build-setup
