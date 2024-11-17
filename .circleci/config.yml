@@ -128,6 +128,7 @@ jobs:
           path: phpcs-report.txt
           destination: phpcs-report
 
+  # how to exploit?
   metrics-phpmetrics:
     executor: php-executor
     steps:
@@ -155,8 +156,7 @@ jobs:
       - run:
           name: Run phploc
           command: |
-            # Exclude the 'vendor' directory and run phploc on the rest
-            find . -path ./vendor -prune -o -name '*.php' -print | php phploc.phar > phploc-report.txt
+            php phploc.phar ./src > phploc-report.txt
       - store_artifacts:
           path: phploc-report.txt
           destination: phploc-report
@@ -216,7 +216,7 @@ jobs:
             chmod +x local-php-security-checker
       - run:
           name: Run local-php-security-checker
-          command: ./local-php-security-checker --format=json --no-dev > security-report.json
+          command: ./local-php-security-checker --format=json --path=/path/to/php/project > security-report.json
       - store_artifacts:
           path: security-report.json
           destination: security-report
