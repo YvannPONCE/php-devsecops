@@ -106,7 +106,7 @@ jobs:
           key: v1-dependencies-{{ checksum "composer.json" }}
       - *persist_to_workspace
 
-
+  # add gate
   lint-phpcs:
     executor: php-executor
     steps:
@@ -155,11 +155,13 @@ jobs:
       - run:
           name: Run phploc
           command: |
-            php phploc.phar ./src > phploc-report.txt
+            # Exclude the 'vendor' directory and run phploc on the rest
+            find . -path ./vendor -prune -o -name '*.php' -print | php phploc.phar > phploc-report.txt
       - store_artifacts:
           path: phploc-report.txt
           destination: phploc-report
 
+  # add gate
   lint-phpmd:
     executor: php-executor
     steps:
@@ -170,7 +172,7 @@ jobs:
       - run:
           name: Analyse code with run PHP Mess Detector
           command: |
-            ./vendor/bin/phpmd ./src text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude=vendor > phpmd-report.txt
+            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude=vendor > phpmd-report.txt
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
@@ -181,7 +183,7 @@ jobs:
           path: phpmd-report.txt
           destination: phpmd-report
         
-
+  #Outil pas très utile
   lint-php-doc-check:
     executor: php-executor
     steps:
@@ -192,7 +194,7 @@ jobs:
       - run:
           name: Run PHP Doc Check
           command: |
-            ./vendor/bin/php-doc-check ./src --format=text --reportFile=php-doc-report.txt --complexity-error-threshold=6 --complexity-warning-threshold=5
+            ./vendor/bin/php-doc-check ./ --format=text --exclude=vendor --reportFile=php-doc-report.txt --complexity-error-threshold=6 --complexity-warning-threshold=5
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
@@ -200,7 +202,7 @@ jobs:
               exit $result
             fi
       - store_artifacts:
-          path: php-doc-report.json
+          path: php-doc-report.txt
           destination: php-doc-report
 
   security-check-dependencies:

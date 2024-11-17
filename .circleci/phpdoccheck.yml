@@ -1,7 +1,0 @@
-doccheck:
-  min-cognitive-complexity: 5
-  require-docblocks:
-    - public
-    - protected
-  ignore-docblocks:
-    - private
