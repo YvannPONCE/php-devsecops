@@ -116,16 +116,15 @@ jobs:
       - run:
           name: Run PHP_CodeSniffer with Custom Ruleset in the project root
           command: |
-            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.txt --report=checkstyle --extensions=php --ignore=vendor/ .
+            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.xml --report=checkstyle --extensions=php --ignore=vendor/ .
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
             else
               exit $result
             fi
-      - store_artifacts:
-          path: phpcs-report.txt
-          destination: phpcs-report
+      - store_test_results:
+          path: phpcs-report.xml
 
   # how to exploi--> a améliorer et à mettre dans les axes cyber
   metrics-phpmetrics:
@@ -134,7 +133,7 @@ jobs:
       - *attach_workspace
       - run:
           name: Install PHP Metrics
-          command: composer require --dev phpmetrics/phpmetrics
+          command: composer require --dev phpmetrics/phpmetrics:^3.0.0rc6
       - run:
           name: Run PHP Metrics
           command: |
@@ -258,7 +257,20 @@ jobs:
               echo "No critical vulnerabilities found."
             fi
 
-  
+  phpstan:
+    executor: php-executor
+    steps:
+      - checkout
+      - *attach_workspace
+      - run:
+          name: Install phpstan
+          command: composer require --dev phpstan/phpstan:^2.0.1
+      - run:
+          name: Run phpstan
+          command: ./vendor/bin/phpstan analyse src tests --error-format=junit > phpstan-report.xml
+      - store_test_results:
+          path: phpstan-report.xml
+
   test-phpunit:
     executor: php-executor
     steps:
@@ -273,15 +285,12 @@ jobs:
             fi
       - run:
           name: Install PHPUnit
-          command: composer require --dev phpunit/phpunit
+          command: composer require --dev phpunit/phpunit:^11.4.3
       - run:
           name: Run PHPUnit
           command: ./vendor/bin/phpunit --testsuite=Unit --log-junit tests/test-results.xml
-      - store_artifacts:
+      - store_test_results:
           path: tests/test-results.xml
-          destination: test-results
-
- 
 
   build-docker-image:
     executor: builder-executor
@@ -316,24 +325,19 @@ jobs:
   deploy-ssh-staging:
     executor: simple-executor
     steps:
+      - checkout
       - add_ssh_keys:
           fingerprints:
             - "${STAGING_SSH_FINGERPRINT}"
       - deploy:
-          name: Deploy to AWS
+          name: Deploy to Ozeliurs Cloud provider
           command: |
-            set -x
-            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST \<< EOF
-            PHP_FPM_VERSION=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1-2)
-            cd $STAGING_DEPLOY_DIRECTORY
-            git pull origin $CIRCLE_BRANCH
-            composer install --optimize-autoloader --no-interaction --prefer-dist
-            (flock -w 10 9 || exit 1; sudo -S service php${PHP_FPM_VERSION}-fpm restart ) 9>/tmp/fpm.lock
-            EOF
-
-
-#  deploy-ssh-production:
-# It's up to you :)
+            sed -i "s|__IMAGE_TAG__|${CIRCLE_SHA1}|" docker-compose.yml;
+            scp -o StrictHostKeyChecking=no -P 17625 docker-compose.yml debian@fbx.ozeliurs.com:/home/debian/app
+            ssh -o StrictHostKeyChecking=no -p 17625 debian@fbx.ozeliurs.com "
+            echo $GHCR_PAT | docker login ghcr.io -u $GHCR_USERNAME --password-stdin;
+            docker compose -f /home/debian/app/docker-compose.yml up -d;
+            "
 
 
 workflows:
@@ -369,26 +373,24 @@ workflows:
       - test-phpunit:
           requires:
             - build-setup
-      # - deploy-ssh-production:
-      #     requires:
-      #         - hold
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - master
-      #- deploy-ssh-staging:
-      #    requires:
-      #      - hold
-      #    filters:
-      #      branches:
-      #        only:
-      #          - /^release\/.*/
-
 
   container_workflow:
     jobs:
       - build-docker-image:
+          filters:
+            branches:
+              only:
+                - master
+                - main
+                - develop
+                - /^feature\/.*/
+                - /^release\/.*/
+                - /^hotfix\/.*/
+                - /^bugfix\/.*/    
+      - deploy-ssh-staging:
+          type: approval
+          requires:
+            - build-docker-image
           filters:
             branches:
               only:
