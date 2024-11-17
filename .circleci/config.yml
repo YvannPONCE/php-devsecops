@@ -93,17 +93,14 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            # "composer.lock" can be used if it is committed to the repo
-            - v1-dependencies-{{ checksum "composer.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+            - dependencies-{{ checksum "composer.json" }}
       - run:
           name: Install dependencies
           command: composer install --no-interaction --no-ansi --prefer-dist
       - save_cache:
           paths:
             - ./vendor
-          key: v1-dependencies-{{ checksum "composer.json" }}
+          key: dependencies-{{ checksum "composer.json" }}
       - *persist_to_workspace
 
 
@@ -151,6 +148,9 @@ jobs:
     executor: php-executor
     steps:
       - *attach_workspace
+      - restore_cache:
+          keys:
+            - phpunit
       - run:
           name: Check if PHPUnit tests are present, otherwise skip the job
           command: |
@@ -167,12 +167,19 @@ jobs:
           command: ./vendor/bin/phpunit --testsuite=Unit --log-junit junit-results.xml
       - store_test_results:
           path: junit-results.xml
+      - save_cache:
+          paths:
+            - ./vendor
+          key: phpunit
 
   
   php-metrics:
     executor: php-executor
     steps:
       - *attach_workspace
+      - restore_cache:
+          keys:
+            - phpmetrics
       - run:
           name: Install PhpMetrics
           command: composer require --dev phpmetrics/phpmetrics:^3.0.0rc6
@@ -181,6 +188,10 @@ jobs:
           command: ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./
       - store_artifacts:
           path: phpmetrics-report
+      - save_cache:
+          paths:
+            - ./vendor
+          key: phpmetrics
   
   #phpmd:
   #  executor: php-executor
