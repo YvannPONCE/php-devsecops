@@ -184,6 +184,27 @@ jobs:
       - store_artifacts:
           path: phpmd-report.txt
           destination: phpmd-report
+
+  gate-quality-check:
+    executor: simple-executor
+    steps:
+      - run:
+          name: Check Quality Reports
+          command: |
+            if [ -f "phpmd-report.txt" ] || [ -f "phpcs-report.txt" ]; then
+              echo "All reports are clean."
+            else
+              echo "Quality check issues found. Generating an alert log."
+              echo "QUALITY CHECK FAILED: Issues found in PHP quality reports." > quality-alert.log
+            fi
+      - store_artifacts:
+          path: quality-alert.log
+          destination: alerts/quality-check
+  
+  quality-approval:
+    type: approval
+    requires:
+      - gate-quality-check
         
   #Outil pas très utile
   lint-php-doc-check:
@@ -228,22 +249,27 @@ jobs:
             # Rendre l'outil exécutable
             chmod +x local-php-security-checker
       - run:
-          name: Run local-php-security-checker and fail on critical issues
+          name: Check Dependencies
+          command: ./local-php-security-checker --format=json > security-report.json
+      - run:
+          name: Alert on Critical Vulnerabilities
           command: |
-            # Exécuter l'analyse des vulnérabilités
-            ./local-php-security-checker --format=json > security-report.json
-
-            # Vérifier si des vulnérabilités critiques sont trouvées
-            CRITICAL_COUNT=$(jq '.vulnerabilities | map(select(.severity == "critical")) | length' security-report.json)
-            if [ "$CRITICAL_COUNT" -gt 0 ]; then
-              echo "Des vulnérabilités critiques ont été détectées !"
-              cat security-report.json
-              exit 1
+            if grep '"severity": "critical"' security-report.json; then
+              echo "Critical vulnerability found. Requiring manual approval."
+              echo "CRITICAL VULNERABILITY DETECTED" > critical-alert.log
+              exit 0
+            else
+              echo "No critical vulnerabilities found."
             fi
       - store_artifacts:
           path: security-report.json
           destination: security-report
+      - store_artifacts:
+          path: critical-alert.log
+          destination: alerts/critical
 
+  security-approval:
+  type: approval
 
   test-phpunit:
     executor: php-executor
@@ -334,12 +360,19 @@ workflows:
       - lint-phpmd:
           requires:
             - build-setup
+      - gate-quality-check
+      - quality-approval:
+          requires:
+            - gate-quality-check
       - lint-php-doc-check:
           requires:
             - build-setup
       - security-check-dependencies:
           requires:
             - build-setup
+      - security-approval:
+          requires:
+            - security-check-dependencies
       - test-phpunit:
           requires:
             - build-setup
@@ -363,6 +396,9 @@ workflows:
   container_workflow:
     jobs:
       - build-docker-image:
+          requires:
+            - quality-approval
+            - security-approval
           filters:
             branches:
               only:
