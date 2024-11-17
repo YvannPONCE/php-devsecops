@@ -233,7 +233,7 @@ jobs:
             echo "${DOCKER_PUBLIC_KEY}" > ~/docker.pub
             export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$DOCKER_PASSPHRASE
             docker trust key load ~/.docker/trust/private/${DOCKER_TRUSTK_KEY_ID}.key
-            docker trust signer add --key ~/docker.pub circlec ghcr.io/yvannponce/php-devsecops
+            docker trust signer add --key ~/docker.pub circle ghcr.io/yvannponce/php-devsecops
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
           command: |
