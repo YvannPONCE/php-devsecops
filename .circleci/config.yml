@@ -280,6 +280,7 @@ jobs:
   lint-outdated-dependencies:
     executor: php-executor
     steps:
+      - *attach_workspace
       - run:
           name: Check for Outdated Dependencies
           command: composer outdated
