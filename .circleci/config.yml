@@ -106,7 +106,7 @@ jobs:
           key: v1-dependencies-{{ checksum "composer.json" }}
       - *persist_to_workspace
 
-  # add gate
+  # rendre rapport plus joli
   lint-phpcs:
     executor: php-executor
     steps:
@@ -144,7 +144,7 @@ jobs:
           path: phpmetrics-report.html
           destination: phpmetrics-report
 
-  #how to esploit
+  #how to esploit ?
   metrics-phploc:
     executor: php-executor
     steps:
@@ -163,7 +163,7 @@ jobs:
           path: phploc-report.txt
           destination: phploc-report
 
-  # add gate
+  # rendre rapport plus joli
   lint-phpmd:
     executor: php-executor
     steps:
@@ -191,21 +191,30 @@ jobs:
       - run:
           name: Check Quality Reports
           command: |
-            if [ -f "phpmd-report.txt" ] || [ -f "phpcs-report.txt" ]; then
-              echo "All reports are clean."
+            echo "Checking for PHP quality report files..."
+            if [ -f "phpmd-report.txt" ]; then
+              echo "Issues found in phpmd-report.txt" >> quality-alert.log
             else
+              echo "No issues found in phpmd-report.txt" >> quality-alert.log
+            fi
+            
+            if [ -f "phpcs-report.txt" ]; then
+              echo "Issues found in phpcs-report.txt" >> quality-alert.log
+            else
+              echo "No issues found in phpcs-report.txt" >> quality-alert.log
+            fi
+
+            # Check if we have any issues in the reports
+            if [ -f "phpmd-report.txt" ] || [ -f "phpcs-report.txt" ]; then
               echo "Quality check issues found. Generating an alert log."
               echo "QUALITY CHECK FAILED: Issues found in PHP quality reports." > quality-alert.log
-              if [ -f "phpmd-report.txt" ]; then
-                echo "Issues found in phpmd-report.txt" >> quality-alert.log
-              fi
-              if [ -f "phpcs-report.txt" ]; then
-                echo "Issues found in phpcs-report.txt" >> quality-alert.log
-              fi
+            else
+              echo "All reports are clean."
             fi
       - store_artifacts:
           path: quality-alert.log
           destination: alerts/quality-check
+
 
   
   quality-approval:
