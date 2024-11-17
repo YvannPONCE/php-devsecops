@@ -127,7 +127,7 @@ jobs:
           path: phpcs-report.txt
           destination: phpcs-report
 
-  # how to exploit?
+  # how to exploi--> a améliorer et à mettre dans les axes cyber
   metrics-phpmetrics:
     executor: php-executor
     steps:
@@ -158,6 +158,19 @@ jobs:
           name: Run phploc
           command: |
             php phploc.phar ./src > phploc-report.txt
+            - run:
+          name: Check Cyclomatic Complexity
+          command: |
+            class_complexity=$(grep "Average Complexity per Class" phploc-report.txt | awk '{print $5}')
+            method_complexity=$(grep "Average Complexity per Method" phploc-report.txt | awk '{print $5}')
+            if [ $(echo "$class_complexity > 10" | bc) -eq 1 ]; then
+              echo "Warning: Cyclomatic complexity for classes is too high ($class_complexity)."
+              exit 1
+            fi
+            if [ $(echo "$method_complexity > 5" | bc) -eq 1 ]; then
+              echo "Warning: Cyclomatic complexity for methods is too high ($method_complexity)."
+              exit 1
+            fi
       - store_artifacts:
           path: phploc-report.txt
           destination: phploc-report
