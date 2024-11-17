@@ -179,7 +179,7 @@ jobs:
           command: composer require --dev phpmetrics/phpmetrics
       - run:
           name: Run PhpMetrics
-          command: ls ~/.config/composer/vendor/bin/ #~/.config/composer/vendor/bin/phpmetrics --report-html=phpmetrics-report ./
+          command: ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./
       - store_artifacts:
           path: phpmetrics-report
   
