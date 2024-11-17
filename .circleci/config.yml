@@ -175,7 +175,7 @@ jobs:
           command: composer require --dev phpmd/phpmd
       - run:
           name: Install xsltproc
-          command: sudo apt install xsltproc
+          command: sudo apt update && sudo apt install xsltproc
       - run:
           name: Analyse code with PHP Mess Detector
           command: |
