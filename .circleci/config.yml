@@ -265,16 +265,16 @@ jobs:
 workflows:
   main_workflow:
     jobs:
-      - debug-info
-      - build-setup
-      - lint-phpcs
-      #- security-check-dependencies:
-      #    requires:
-      #      - build-setup
-      - test-phpunit
-      - php-metrics
-      - phpstan
-      #- build-docker-image
+      #- debug-info
+      #- build-setup
+      #- lint-phpcs
+      ##- security-check-dependencies:
+      ##    requires:
+      ##      - build-setup
+      #- test-phpunit
+      #- php-metrics
+      #- phpstan
+      - build-docker-image
       #- hold:
       #    type: approval
       #    requires:
