@@ -119,12 +119,15 @@ jobs:
             ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.xml --report=checkstyle --extensions=php --ignore=vendor/ .
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
-              exit 0
+              echo "PHP_CodeSniffer found issues."
+              cat phpcs-report.xml
+              exit 1  # Échoue le job si des problèmes sont trouvés
             else
-              exit $result
+              echo "PHP_CodeSniffer found no issues."
             fi
       - store_test_results:
           path: phpcs-report.xml
+
 
   # how to exploi--> a améliorer et à mettre dans les axes cyber
   metrics-phpmetrics:
