@@ -107,6 +107,7 @@ jobs:
   lint-phpcs:
     executor: php-executor
     steps:
+      - checkout
       - *attach_workspace
       - run:
           name: Install PHP_CodeSniffer and PHPCompatibility
@@ -263,9 +264,7 @@ workflows:
     jobs:
       - debug-info
       - build-setup
-      #- lint-phpcs:
-      #    requires:
-      #      - build-setup
+      - lint-phpcs
       #- security-check-dependencies:
       #    requires:
       #      - build-setup
