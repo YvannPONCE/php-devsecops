@@ -225,37 +225,39 @@ jobs:
             echo "<h1>Résumé des Rapports d'Analyse</h1>" >> summary-report.html
 
             # Vérifier et inclure chaque rapport
-            if [ -f phpcs-report.html ]; then
-              echo "<h2>PHP CodeSniffer</h2><iframe src='phpcs-report.html' width='100%' height='400'></iframe>" >> summary-report.html
+            if [ -f /home/circleci/project/phpcs-report.txt ]; then
+              echo "<h2>PHP CodeSniffer</h2><pre>" >> summary-report.html
+              cat home/circleci/project/phpcs-report.txt >> summary-report.html
+              echo "</pre>" >> summary-report.html
             else
               echo "<h2>PHP CodeSniffer</h2><p>Rapport non trouvé.</p>" >> summary-report.html
             fi
 
-            if [ -f phpmetrics-report.html ]; then
-              echo "<h2>PHP Metrics</h2><iframe src='phpmetrics-report.html' width='100%' height='400'></iframe>" >> summary-report.html
+            if [ -f /home/circleci/project/phpmetrics-report.html ]; then
+              echo "<h2>PHP Metrics</h2><iframe src='/home/circleci/project/phpmetrics-report.html' width='100%' height='400'></iframe>" >> summary-report.html
             else
               echo "<h2>PHP Metrics</h2><p>Rapport non trouvé.</p>" >> summary-report.html
             fi
 
-            if [ -f phpmd-report.txt ]; then
+            if [ -f /home/circleci/project/phpmd-report.txt ]; then
               echo "<h2>PHP Mess Detector</h2><pre>" >> summary-report.html
-              cat phpmd-report.txt >> summary-report.html
+              cat /home/circleci/project/phpmd-report.txt >> summary-report.html
               echo "</pre>" >> summary-report.html
             else
               echo "<h2>PHP Mess Detector</h2><p>Rapport non trouvé.</p>" >> summary-report.html
             fi
 
-            if [ -f phploc-report.txt ]; then
+            if [ -f /home/circleci/project/phploc-report.txt ]; then
               echo "<h2>PHPLOC</h2><pre>" >> summary-report.html
-              cat phploc-report.txt >> summary-report.html
+              cat /home/circleci/project/phploc-report.txt >> summary-report.html
               echo "</pre>" >> summary-report.html
             else
               echo "<h2>PHPLOC</h2><p>Rapport non trouvé.</p>" >> summary-report.html
             fi
 
-            if [ -f security-report.json ]; then
+            if [ -f /home/circleci/project/security-report.json ]; then
               echo "<h2>Rapport de Sécurité</h2><pre>" >> summary-report.html
-              cat security-report.json | jq . >> summary-report.html
+              cat /home/circleci/project/security-report.json | jq . >> summary-report.html
               echo "</pre>" >> summary-report.html
             else
               echo "<h2>Rapport de Sécurité</h2><p>Rapport non trouvé.</p>" >> summary-report.html
@@ -432,6 +434,7 @@ workflows:
             - metrics-phpmetrics
             - metrics-phploc
             - lint-phpmd
+            - security-check-dependencies
       - quality-approval:
           requires:
             - gate-quality-check
