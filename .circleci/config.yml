@@ -307,6 +307,32 @@ jobs:
               echo "No critical vulnerabilities found."
             fi
 
+  security-scan-snyk:
+    executor: php-executor
+    steps:
+      - checkout
+      - run:
+          name: Install Snyk CLI
+          command: npm install -g snyk
+      - run:
+          name: Authenticate Snyk
+          command: snyk auth $SNYK_AUTH_TOKEN
+      - run:
+          name: Run Snyk Dependency Scan
+          command: snyk test --json > snyk-report.json
+      - store_artifacts:
+          path: snyk-report.json
+          destination: snyk-report
+      - run:
+          name: Check for Critical Vulnerabilities
+          command: |
+            if grep '"severity": "critical"' snyk-report.json; then
+              echo "Critical vulnerability found. Failing the job."
+              exit 1
+            else
+              echo "No critical vulnerabilities found."
+            fi
+
 
   build-docker-image:
     executor: builder-executor
@@ -377,6 +403,9 @@ workflows:
           requires:
             - build-setup
       - security-check-dependencies:
+          requires:
+            - build-setup
+      - security-scan-snyk:
           requires:
             - build-setup
       - test-phpunit:
