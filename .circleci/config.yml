@@ -252,7 +252,7 @@ jobs:
             # docker trust sign ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1}
 
             # Push the Docker image
-            echo "$DOCKER_PASSPHRASE \n $DOCKER_PASSPHRASE" docker push ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1}
+            docker push ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1}
 
 
   deploy-ssh-staging:
