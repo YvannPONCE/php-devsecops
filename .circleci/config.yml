@@ -216,7 +216,7 @@ jobs:
             chmod +x local-php-security-checker
       - run:
           name: Run local-php-security-checker
-          command: ./local-php-security-checker --format=json --path=./src > security-report.json
+          command: ./local-php-security-checker --format=json > security-report.json
       - store_artifacts:
           path: security-report.json
           destination: security-report
