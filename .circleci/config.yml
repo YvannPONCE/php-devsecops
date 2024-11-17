@@ -169,12 +169,9 @@ jobs:
     steps:
       - *attach_workspace
       - run:
-          name: Install PHP Mess Detector
-          command: composer require --dev phpmd/phpmd
-      - run:
-          name: Analyse code with run PHP Mess Detector
+          name: Analyse code with PHP Mess Detector
           command: |
-            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude=vendor > phpmd-report.txt
+            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude vendor,tmp > phpmd-report.txt
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
