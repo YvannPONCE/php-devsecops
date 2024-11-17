@@ -128,7 +128,48 @@ jobs:
           path: phpcs-report.txt
           destination: phpcs-report
 
+  lint-phpmd:
+    executor: php-executor
+    steps:
+      - *attach_workspace
+      - run:
+          name: Install PHP Mess Detector
+          command: composer require --dev phpmd/phpmd
+      - run:
+          name: Analyse code with run PHP Mess Detector
+          command: |
+            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude=vendor
+            result=$?
+            if [ $result -eq 1 ] || [ $result -eq 2 ]; then
+              exit 0
+            else
+              exit $result
+            fi
+      - store_artifacts:
+          path: phpmd-report.txt
+          destination: phpmd-report
+        
 
+  lint-php-doc-check:
+    executor: php-executor
+    steps:
+      - *attach_workspace
+      - run:
+          name: Install PHP Doc Check
+          command: composer require --dev niels-de-blaauw/php-doc-check
+      - run:
+          name: Run PHP Doc Check
+          command: |
+            ./vendor/bin/php-doc-check ./src --format=text --reportFile=php-doc-report.txt
+            result=$?
+            if [ $result -eq 1 ] || [ $result -eq 2 ]; then
+              exit 0
+            else
+              exit $result
+            fi
+      - store_artifacts:
+          path: php-doc-report.txt
+          destination: php-doc-report
 
   security-check-dependencies:
     executor: php-executor
@@ -167,7 +208,7 @@ jobs:
           name: Run PHPUnit
           command: ./vendor/bin/phpunit --testsuite=Unit
 
-
+  
   build-docker-image:
     executor: builder-executor
     steps:
@@ -226,6 +267,12 @@ workflows:
       - debug-info
       - build-setup
       - lint-phpcs:
+          requires:
+            - build-setup
+      - lint-phpmd:
+          requires:
+            - build-setup
+      - lint-php-doc-check:
           requires:
             - build-setup
       - security-check-dependencies:
