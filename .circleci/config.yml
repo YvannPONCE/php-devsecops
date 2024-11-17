@@ -180,8 +180,11 @@ jobs:
       - run:
           name: Analyse code with PHP Mess Detector
           command: |
-            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude vendor,tmp | xsltproc ./.circleci/junit.xslt > phpmd-report.xml
+            ./vendor/bin/phpmd ./ xml cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude vendor,tmp > phpmd-report.xml
             result=$?
+
+            xsltproc -o output-junit.xml ./.circleci/junit.xslt  phpmd-report.xml 
+
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               echo "PHP Mess Detector found issues."
               cat phpmd-report.txt
@@ -190,7 +193,7 @@ jobs:
               echo "PHP Mess Detector found no issues."
             fi
       - store_test_results:
-          path: phpmd-report.xml
+          path: output-junit.xml
         
   #Outil pas très utile
   lint-php-doc-check:
