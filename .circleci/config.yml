@@ -138,7 +138,7 @@ jobs:
       - run:
           name: Analyse code with run PHP Mess Detector
           command: |
-            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode > phpmd-report.txt
+            ./vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --suffixes=php --exclude=vendor> phpmd-report.txt
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               exit 0
