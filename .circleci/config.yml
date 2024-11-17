@@ -169,10 +169,11 @@ jobs:
   lint-phpmd:
     executor: php-executor
     steps:
+      - checkout
       - *attach_workspace
       - run:
           name: Install PHP Mess Detector in CI environment
-          command: composer require --dev phpmd/phpmd
+          command: composer require --dev phpmd/phpmd:^2.15.0
       - run:
           name: Install xsltproc
           command: sudo apt update && sudo apt install xsltproc
