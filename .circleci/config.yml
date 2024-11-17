@@ -158,6 +158,10 @@ jobs:
           name: Run phploc
           command: |
             php phploc.phar ./src > phploc-report.txt
+            ./generate-summary.sh phploc-report.txt > phploc-summary.html
+      - store_artifacts:
+          path: phploc-summary.html
+          destination: metrics/phploc
       - run:
           name: Check Cyclomatic Complexity
           command: |
@@ -263,6 +267,9 @@ jobs:
       - run:
           name: Check Dependencies
           command: ./local-php-security-checker --format=json > security-report.json
+      - store_artifacts:
+          path: security-report.json
+          destination: security-report
       - run:
           name: Check for Critical Vulnerabilities
           command: |
@@ -273,9 +280,6 @@ jobs:
             else
               echo "No critical vulnerabilities found."
             fi
-      - store_artifacts:
-          path: security-report.json
-          destination: security-report
 
   test-phpunit:
     executor: php-executor
