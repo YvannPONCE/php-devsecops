@@ -138,7 +138,7 @@ jobs:
       - run:
           name: Run PHP Metrics and generate report
           command: |
-            ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./
+            ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./src
       - store_artifacts:
           path: phpmetrics-report
           destination: phpmetrics-report
@@ -153,7 +153,7 @@ jobs:
       - run:
           name: Run phploc
           command: |
-            ./vendor/bin/phploc ./ > phploc-report.txt
+            ./vendor/bin/phploc ./src > phploc-report.txt
       - store_artifacts:
           path: phploc-report.txt
           destination: phploc-report
