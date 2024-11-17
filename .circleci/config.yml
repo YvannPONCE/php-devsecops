@@ -261,7 +261,7 @@ jobs:
 workflows:
   main_workflow:
     jobs:
-      #- debug-info
+      - debug-info
       - build-setup
       #- lint-phpcs:
       #    requires:
