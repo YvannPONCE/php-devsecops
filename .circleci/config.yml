@@ -137,11 +137,11 @@ jobs:
           name: Install PHP Metrics
           command: composer require --dev phpmetrics/phpmetrics
       - run:
-          name: Run PHP Metrics and generate report
+          name: Run PHP Metrics
           command: |
-            ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./src
+            ./vendor/bin/phpmetrics --exclude=vendor,tmp --report-html=phpmetrics-report.html ./src
       - store_artifacts:
-          path: phpmetrics-report
+          path: phpmetrics-report.html
           destination: phpmetrics-report
 
   #how to esploit
@@ -168,6 +168,9 @@ jobs:
     executor: php-executor
     steps:
       - *attach_workspace
+      - run:
+          name: Install PHP Mess Detector in CI environment
+          command: composer require --dev phpmd/phpmd
       - run:
           name: Analyse code with PHP Mess Detector
           command: |
