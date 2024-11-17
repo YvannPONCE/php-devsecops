@@ -176,7 +176,7 @@ jobs:
       - *attach_workspace
       - run:
           name: Install PhpMetrics
-          command: composer require --dev phpmetrics/phpmetrics
+          command: composer require --dev phpmetrics/phpmetrics:^3.0.0rc6
       - run:
           name: Run PhpMetrics
           command: ./vendor/bin/phpmetrics --report-html=phpmetrics-report ./
