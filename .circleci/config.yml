@@ -228,7 +228,7 @@ jobs:
           name: Add docker signing key
           command: |
             mkdir -p ~/.docker/trust
-            infisical secrets get DOCKER_SIGN_PRIVATE_KEY --projectId=${INFISICAL_PROJECT_ID} --token=${INFISICAL_SERVICE_TOKEN} >  ~/.docker/trust/private
+            infisical secrets get DOCKER_SIGN_PRIVATE_KEY --projectId=${INFISICAL_PROJECT_ID} --token=${INFISICAL_SERVICE_TOKEN} >  ~/.docker/trust/private/circle.key
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
           command: |
