@@ -244,6 +244,7 @@ jobs:
       - store_test_results:
           path: tests/test-results.xml
 
+
   security-trivy-scan:
     executor: simple-executor
     steps:
@@ -261,18 +262,30 @@ jobs:
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
             docker pull ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
             trivy image --exit-code 1 --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} > trivy-report.txt || true
+      - run:
+          name: Check for critical vulnerabilities and create GitHub issue
+          command: |
+            # Check if the Trivy report contains HIGH or CRITICAL vulnerabilities
+            if grep -q 'CRITICAL' trivy-report.txt || grep -q 'HIGH' trivy-report.txt; then
+              echo "Critical or High vulnerabilities found. Creating GitHub issue..."
+
+              # Prepare the issue title and body
+              ISSUE_TITLE=":warning: Critical or High vulnerabilities found in Docker image ${CIRCLE_SHA1}"
+              ISSUE_BODY="*Vulnerabilities found in Docker image* ${CIRCLE_SHA1}:\n\n$(cat trivy-report.txt)"
+
+              # Create GitHub issue via API
+              curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+                -d "{\"title\": \"$ISSUE_TITLE\", \"body\": \"$ISSUE_BODY\"}" \
+                https://api.github.com/repos/YvannPONCE/php-devsecops/issues  
+
+              exit 1  # Fail the job if critical vulnerabilities are found
+            else
+              echo "No critical vulnerabilities found. All good!"
+            fi
       - store_artifacts:
           path: trivy-report.txt
           destination: trivy-report
-      - run:
-          name: Check for vulnerabilities in the Trivy report
-          command: |
-            if grep -q 'CRITICAL' trivy-report.txt || grep -q 'HIGH' trivy-report.txt; then
-              echo "Critical or High vulnerabilities found. Failing the job."
-              exit 1
-            else
-              echo "No critical vulnerabilities found."
-            fi
+
 
   build-docker-image:
     executor: builder-executor
