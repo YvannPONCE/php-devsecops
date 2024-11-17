@@ -116,7 +116,7 @@ jobs:
       - run:
           name: Run PHP_CodeSniffer with Custom Ruleset in the project root
           command: |
-            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.txt --report=full --extensions=php --ignore=vendor/ .
+            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.xml --report=junit --extensions=php --ignore=vendor/ .
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               echo "PHP_CodeSniffer found issues."
@@ -125,9 +125,8 @@ jobs:
             else
               echo "PHP_CodeSniffer found no issues."
             fi
-      - store_artifacts:
-          path: phpcs-report.txt  # Stocker le fichier de rapport .txt
-          destination: phpcs-report
+      - store_test_results:
+          path: phpcs-report.xml
 
 
   # how to exploi--> a améliorer et à mettre dans les axes cyber
