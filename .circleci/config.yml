@@ -116,17 +116,17 @@ jobs:
       - run:
           name: Run PHP_CodeSniffer with Custom Ruleset in the project root
           command: |
-            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.xml --report=checkstyle --extensions=php --ignore=vendor/ .
+            ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.txt --report=full --extensions=php --ignore=vendor/ .
             result=$?
             if [ $result -eq 1 ] || [ $result -eq 2 ]; then
               echo "PHP_CodeSniffer found issues."
-              cat phpcs-report.xml
+              cat phpcs-report.txt  # Afficher les erreurs dans les logs
               exit 1  # Échoue le job si des problèmes sont trouvés
             else
               echo "PHP_CodeSniffer found no issues."
             fi
-      - store_test_results:
-          path: phpcs-report.xml
+      - store_artifacts:
+          path: phpcs-report.txt  # Stocker le fichier de rapport .txt
           destination: phpcs-report
 
 
