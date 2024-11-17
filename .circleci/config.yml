@@ -129,7 +129,6 @@ jobs:
           destination: phpcs-report
 
 
-
   security-check-dependencies:
     executor: php-executor
     steps:
@@ -162,7 +161,7 @@ jobs:
             fi
       - run:
           name: Install PHPUnit
-          command: composer require --dev phpunit/phpunit
+          command: composer require --dev phpunit/phpunit:^11.4.3
       - run:
           name: Run PHPUnit
           command: ./vendor/bin/phpunit --testsuite=Unit --log-junit junit-results.xml
