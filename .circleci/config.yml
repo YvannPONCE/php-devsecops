@@ -148,12 +148,14 @@ jobs:
     steps:
       - *attach_workspace
       - run:
-          name: Install phploc
-          command: composer require --dev sebastian/phploc
+          name: Download phploc.phar
+          command: |
+            wget https://phar.phpunit.de/phploc.phar
+            chmod +x phploc.phar
       - run:
           name: Run phploc
           command: |
-            ./vendor/bin/phploc ./src > phploc-report.txt
+            php phploc.phar ./src > phploc-report.txt
       - store_artifacts:
           path: phploc-report.txt
           destination: phploc-report
