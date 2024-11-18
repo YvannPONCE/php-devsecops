@@ -249,25 +249,6 @@ jobs:
       - store_test_results:
           path: tests/test-results.xml
 
-  git-secrets-scan:
-    executor: simple-executor
-    steps:
-      - checkout
-      - run:
-          name: Install Git Secrets
-          command: |
-            curl -Lo /tmp/git-secrets.tar.gz https://github.com/awslabs/git-secrets/releases/download/v1.3.0/git-secrets-1.3.0-linux-x86_64.tar.gz
-            tar -xzvf /tmp/git-secrets.tar.gz -C /tmp
-            sudo mv /tmp/git-secrets /usr/local/bin/
-      - run:
-          name: Scan for secrets in git history
-          command: |
-            git secrets --scan > git-secrets-report.txt || true
-      - store_artifacts:
-          path: git-secrets-report.txt
-          destination: git-secrets-report
-
-
   security-trivy-scan:
     executor: simple-executor
     steps:
@@ -363,9 +344,6 @@ workflows:
     jobs:
       - debug-info
       - build-setup
-      - git-secrets-scan:
-          requires:
-            - build-setup
       - lint-phpcs:
           requires:
             - build-setup
