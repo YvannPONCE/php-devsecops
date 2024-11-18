@@ -243,12 +243,10 @@ jobs:
       - store_test_results:
           path: tests/test-results.xml
 
-
   security-trivy-scan:
     executor: simple-executor
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Install Trivy
           command: |
@@ -261,22 +259,19 @@ jobs:
             # Login to GHCR
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
             docker pull ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
-            curl -o junit.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/junit.tpl
-            trivy image --exit-code 1 --format template --template junit.tpl -o junit-report.xml --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} || true
-      - store_test_results:
-          path: junit-report.xml
-      - run:
-          name: Check for critical vulnerabilities and create GitHub issue
-          command: |
-            if grep -q 'CRITICAL' junit-report.xml || grep -q 'HIGH' junit-report.xml; then
-              echo "Critical or High vulnerabilities found. Failing the job."
-              exit 1
-            else
-              echo "No critical vulnerabilities found. All good!"
-            fi
+            trivy image --exit-code 1 --severity HIGH,CRITICAL ghcr.io/yvannponce/php-devsecops/phpapp:${CIRCLE_SHA1} > trivy-report.txt || true
       - store_artifacts:
           path: trivy-report.txt
           destination: trivy-report
+      - run:
+          name: Check for vulnerabilities in the Trivy report
+          command: |
+            if grep -q 'CRITICAL' trivy-report.txt || grep -q 'HIGH' trivy-report.txt; then
+              echo "Critical or High vulnerabilities found. Failing the job."
+              exit 1
+            else
+              echo "No critical vulnerabilities found."
+            fi
 
 
   build-docker-image:
