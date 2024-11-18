@@ -249,6 +249,21 @@ jobs:
       - store_test_results:
           path: tests/test-results.xml
 
+  git-secrets-scan:
+    executor: simple-executor
+    steps:
+      - checkout
+      - run:
+          name: Install Git Secrets
+          command: |
+            brew install git-secrets
+      - run:
+          name: Scan for secrets in git history
+          command: |
+            git secrets --scan > git-secrets-report.txt || true
+      - store_artifacts:
+          path: git-secrets-report.txt
+          destination: git-secrets-report
 
   security-trivy-scan:
     executor: simple-executor
@@ -345,6 +360,9 @@ workflows:
     jobs:
       - debug-info
       - build-setup
+      - git-secrets-scan:
+          requires:
+            - build-setup
       - lint-phpcs:
           requires:
             - build-setup
