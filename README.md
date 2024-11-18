@@ -47,8 +47,6 @@ Ce job vérifie le code PHP avec **PHP_CodeSniffer** en utilisant un ensemble de
 ### 📊 **metrics-phpmetrics**
 Ce job analyse le code avec **PHP Metrics** pour générer un rapport détaillant la qualité du code (comme la complexité cyclomatique, la couverture des tests, etc.). 
 
-- **Amélioration possible** : Une amélioration de ce job pourrait consister à rendre les résultats plus facilement exploitables, notamment en ajoutant une visualisation des données (par exemple, un tableau de bord interactif ou des graphiques). Actuellement, les résultats sont principalement en texte ou en format de rapport brut, ce qui peut être difficile à lire pour certains utilisateurs. Il serait intéressant d'explorer comment intégrer ces résultats de manière plus intuitive et visuelle.
-
 ### 📊 **metrics-phploc**
 Ce job analyse les métriques du code à l’aide de **phploc**. **phploc** mesure des aspects tels que la taille du code, le nombre de classes, de méthodes, ainsi que la complexité. Ces métriques permettent d'avoir un aperçu général de la structure et de la maintenabilité du projet.
 
